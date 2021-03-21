@@ -1,51 +1,70 @@
-import React , { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../App.css';
-import { Container, Row, Col, Button, Tab, Tabs, Form } from 'react-bootstrap';
+import Entrada from './form/entrada';
+import Saida from './form/saida';
+import axios from 'axios';
+
+import { Container, Row, Col, Tab, Tabs, ListGroup, Card } from 'react-bootstrap';
+
+import fireDb from '../../database/firebase';
 
 
 
-const EntradaSaida = ({ onSubmit }) => {
+const EntradaSaida = () => {
+    
+    let [dadosPlacas, setDadosPlacas] = useState({})
 
-    const [newItem, setNewItem] = useState('');
+    useEffect(() => {
+        fireDb.child('placas').on('value', dbDate => {
+            if (dbDate.val() != null) {
+                setDadosPlacas({
+                    ...dbDate.val()
+                })
+            }
+        })
+    }, [])
 
-    function setPlaca({target}) {
-      setNewItem(target.value);
-    }
-  
-    function submit(e) {
-      e.preventDefault();
-      onSubmit(newItem);
+
+    const addEdit = obj => {
+        fireDb.child('placas').push(
+            obj,
+            error => {
+                if (error) {
+                    console.log(error)
+                }
+            }
+        )
     }
 
     return (
         <div>
-           <Container fluid>
+            <Container fluid>
                 <Row className="justify-content-center">
                     <Col lg="4">
                         <Tabs defaultActiveKey="entrada" id="uncontrolled-tab-example" className="justify-content-around">
                             <Tab eventKey="entrada" title="Entrada">
-                                <Form id="entrada" onSubmit={submit}>
-                                    <Form.Group controlId="formValue">
-                                        <Form.Label>Número da placa:</Form.Label>
-                                        <Form.Control type="text" placeholder="AAA-0000" onChange={setPlaca} />
-                                    </Form.Group>
-                                    <Button type="submit">
-                                        CONFIRMAR ENTRADA
-                                    </Button>
-                                </Form>
+                                <Entrada addEdit={addEdit} />
                             </Tab>
                             <Tab eventKey="saida" title="Saída">
-                                <Form id="saida">
-                                    <Form.Group controlId="formBasicEmail">
-                                    <Form.Label>Número da placa:</Form.Label>
-                                        <Form.Control type="text" placeholder="AAA-0000" />
-                                    </Form.Group>
-                                    <Button type="submit">
-                                        PAGAMENTO
-                                    </Button>
-                                </Form>
+                                <Saida />
                             </Tab>
                         </Tabs>
+                    </Col>
+                    <Col lg="4">
+                        <Card>
+                            <h2>Placas</h2>
+
+                            {
+                                Object.keys(dadosPlacas).map(id => {
+                                    return <tr key={id}>
+                                        <td> {dadosPlacas[id].placa} </td>
+                                    </tr>
+
+                                })
+                            }
+
+                        </Card>
+                      
                     </Col>
                 </Row>
             </Container>
