@@ -1,29 +1,35 @@
 
 import React from 'react';
+import api from '../../service/api';
 
-import axios from 'axios';
 
 export default class Historico extends React.Component {
- 
 
   state = {
-    HistoricoPlacas: []
+    HistoricoPlates: [],
   }
-  
+
   componentDidMount() {
-    axios.get(`https://parking-lot-to-pfz.herokuapp.com/parking/AaA-4444`)
+    api.get(`/parking/AaA-4444`)
       .then(res => {
-        const HistoricoPlacas = res.data;
-        this.setState({ HistoricoPlacas });
+        console.log(res)       
+        this.setState({ HistoricoPlates: res.data});
       })
   }
-  
+
   render() {
     return (
-      <ul>
-        { this.state.HistoricoPlacas.map(datePlate => <li>{datePlate.plate}</li>)}
-      </ul>
+      <div>
+        { this.state.HistoricoPlates.map(datePlate =>
+          <ul key={datePlate.id}>
+            <li>plate: {datePlate.plate}</li>
+            <li>reservation: {datePlate.reservation}</li>
+            <li>time: {datePlate.time}</li>
+          </ul>
+        )}
+      </div>
     )
   }
+
 }
 

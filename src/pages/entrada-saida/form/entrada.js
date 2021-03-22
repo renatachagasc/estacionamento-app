@@ -1,33 +1,39 @@
-import React, { useState } from 'react';
+import React  from 'react';
 import { Button, Form } from 'react-bootstrap';
+import api from '../../../service/api';
+
+export default class Entrada  extends React.Component {
+
+    state = {
+        plate: '',
+      }
+    
+      handleChange = event => {
+        this.setState({ plate: event.target.value });
+      }
+    
+      handleSubmit = event => {
+        event.preventDefault();
+    
+        const parking = {
+          plate: this.state.plate
+        };
+    
+        api.post(`/parking`, {...this.state})
+          .then(res => {
+            console.log(res);
+            console.log(res.data);
+          })
+      }
 
 
-const Entrada = (props) => {
-
-    const initialValue = {
-        placa: ''
-    }
-    let [ values, setValues ] = useState(initialValue)
-
-    const manipuladorInputChange = e => {
-        let { name, value } = e.target
-
-        setValues({
-            ...values,
-            [name]: value
-        })
-    }
-    const manipuladorFormEnvio = e => {
-        e.preventDefault();
-        props.addEdit(values)
-    }
-
+ render(){
     return (
         <div>
-            <Form id="entrada" onSubmit={manipuladorFormEnvio} >
+            <Form id="entrada" onSubmit={this.handleSubmit} >
                 <Form.Group controlId="formValue">
                     <Form.Label>Número da placa:</Form.Label>
-                    <Form.Control type="text" placeholder="AAA-0000" name="placa" value={values.placa} onChange={manipuladorInputChange} />
+                    <Form.Control className="text-uppercase" type="text" placeholder="AAAA-0000" name="plate" onChange={this.handleChange} />
                 </Form.Group>
                 <Button type="submit" value="salvar">
                     CONFIRMAR ENTRADA
@@ -35,6 +41,5 @@ const Entrada = (props) => {
             </Form>
         </div>
     );
+ }
 };
-
-export default Entrada;
